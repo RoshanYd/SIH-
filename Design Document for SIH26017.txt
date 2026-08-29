@@ -1,0 +1,3114 @@
+Design Document for SIH26017
+
+Yes. Below is the **master UI/UX + product specification** I would use as the source of truth for the frontend team/AI coding agent.
+
+The central constraint is:
+
+> **Design against the real land-acquisition lifecycle and the real fields we expect from government sources—not against synthetic/demo data.**
+
+The demo dataset can populate the UI now, but **the UI's information architecture, terminology, workflows, filters, forms, tables, and data contracts should already resemble the eventual real system.**
+
+# SIH26017 — Land Acquisition Delay Intelligence System
+
+## Complete Product, UX & Frontend Specification
+
+### Version 1.0 — Prototype architecture
+
+**Frontend:** React
+**Backend:** FastAPI
+**Database:** PostgreSQL recommended
+**Charts:** Recharts / Apache ECharts
+**Maps:** Leaflet / MapLibre
+**Tables:** TanStack Table
+**Icons:** Lucide
+**Styling:** Tailwind CSS
+**State:** React Query + lightweight local state
+
+---
+
+# 1. Product definition
+
+## Product name
+
+Use a professional government-facing name rather than an overly "AI" sounding name.
+
+### Recommended:
+
+> **Land Acquisition Intelligence System**
+
+Subtitle:
+
+> **Early Warning & Decision Support**
+
+Alternative internal name:
+
+> LAIDS
+
+---
+
+# 2. The problem we're solving
+
+Large infrastructure projects depend on timely land acquisition.
+
+An officer may have information scattered across:
+
+* land acquisition records
+* statutory notifications
+* litigation information
+* compensation records
+* environmental clearances
+* geographical information
+* district-level information
+* project progress
+
+The problem isn't simply lack of data.
+
+The problem is:
+
+> **The officer cannot easily see the complete current state of acquisition, identify emerging bottlenecks, prioritize projects, and intervene early.**
+
+Therefore the system must transform fragmented information into:
+
+**Situation → Risk → Explanation → Priority → Action → Monitoring**
+
+---
+
+# 3. Primary users
+
+Design primarily for three levels.
+
+### Level 1 — District/CALA Officer
+
+Needs:
+
+* individual project status
+* acquisition stage
+* pending issues
+* litigation
+* compensation
+* clearances
+* immediate actions
+
+### Level 2 — State/Regional Officer
+
+Needs:
+
+* projects across districts
+* district comparisons
+* risk concentration
+* bottleneck trends
+* agency performance
+
+### Level 3 — Senior/Department Officer
+
+Needs:
+
+* overall portfolio health
+* critical projects
+* emerging risks
+* delay trends
+* intervention outcomes
+
+**The UI should adapt information density, not create completely different applications.**
+
+---
+
+# 4. Core product philosophy
+
+The application should answer five questions.
+
+```text
+┌──────────────────────────────────────────┐
+│ 1. WHAT IS HAPPENING?                    │
+│ Current acquisition state                │
+├──────────────────────────────────────────┤
+│ 2. WHAT IS GOING WRONG?                  │
+│ Bottleneck                              │
+├──────────────────────────────────────────┤
+│ 3. WHAT IS LIKELY TO HAPPEN?             │
+│ Delay risk                               │
+├──────────────────────────────────────────┤
+│ 4. WHAT NEEDS ATTENTION FIRST?           │
+│ Intervention priority                    │
+├──────────────────────────────────────────┤
+│ 5. WHAT HAPPENED AFTER INTERVENTION?     │
+│ Monitoring / history                     │
+└──────────────────────────────────────────┘
+```
+
+---
+
+# 5. Golden UX rule
+
+### Never make the officer interpret ML output.
+
+Bad:
+
+> Model probability: 0.83
+
+Good:
+
+> **High delay risk**
+
+Then:
+
+> Estimated additional delay: **180–240 days**
+
+Then:
+
+> **Primary concern: Litigation**
+
+Then:
+
+> 14 active project cases
+> 1 stay order
+> 7 arbitration petitions
+
+Then:
+
+> **Review litigation affecting pending parcels**
+
+The AI is behind the interface.
+
+The officer sees the decision.
+
+---
+
+# 6. Application architecture
+
+The primary navigation should be:
+
+```text
+LAND ACQUISITION INTELLIGENCE
+
+Overview
+Projects
+Risk Monitor
+Districts
+Interventions
+Reports
+```
+
+Optional:
+
+```text
+Data Quality
+Settings
+```
+
+Don't create a giant sidebar with 20 items.
+
+---
+
+# 7. Global application layout
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ LAI                                      🔔   Officer ▼      │
+├──────────────┬───────────────────────────────────────────────┤
+│              │                                               │
+│ Overview     │                 MAIN CONTENT                  │
+│              │                                               │
+│ Projects     │                                               │
+│              │                                               │
+│ Risk Monitor │                                               │
+│              │                                               │
+│ Districts    │                                               │
+│              │                                               │
+│ Interventions│                                               │
+│              │                                               │
+│ Reports      │                                               │
+│              │                                               │
+└──────────────┴───────────────────────────────────────────────┘
+```
+
+Use a **collapsible sidebar**.
+
+On smaller screens it becomes an icon/sidebar drawer.
+
+---
+
+# 8. Visual design language
+
+The visual direction should combine:
+
+### Apple
+
+* whitespace
+* typography
+* hierarchy
+* restrained colors
+* subtle shadows
+* minimal visual noise
+
+### Monday.com
+
+* information-dense tables
+* filters
+* status chips
+* interactive boards
+* quick actions
+* clear project states
+
+### Government enterprise software
+
+* reliability
+* clarity
+* accessibility
+* predictable navigation
+* explicit status
+* auditability
+
+Do **not** make it look like a flashy startup AI dashboard.
+
+No:
+
+* excessive gradients
+* glowing cards
+* giant AI illustrations
+* neon colors
+* excessive animations
+* unnecessary 3D graphics
+
+---
+
+# 9. Color system
+
+Use colors primarily for **meaning**, not decoration.
+
+```text
+Risk:
+
+Critical → red
+High     → orange
+Medium   → yellow
+Low      → green
+Neutral  → gray
+```
+
+But don't depend solely on color.
+
+Use:
+
+```text
+🔴 Critical
+🟠 High
+🟡 Medium
+🟢 Low
+```
+
+alongside labels.
+
+This improves accessibility.
+
+---
+
+# 10. Typography
+
+Use something like:
+
+**Inter** or **SF Pro-like system font stack**.
+
+Hierarchy:
+
+```text
+Page title       28–32px
+Section title    18–22px
+Card title       14–16px
+Body             14px
+Table            13–14px
+Metadata         12px
+```
+
+Don't make everything huge.
+
+This is an operational application.
+
+---
+
+# 11. DASHBOARD / COMMAND CENTER
+
+This is the first screen after login.
+
+The officer should understand the situation in approximately **10 seconds**.
+
+---
+
+## Header
+
+```text
+Land Acquisition Intelligence
+
+Patna District ▼
+All Projects ▼
+As of 28 Aug 2026
+```
+
+Global filters:
+
+```text
+State
+District
+Executing Agency
+Sector
+Acquisition Stage
+Risk
+```
+
+---
+
+# 12. Dashboard KPI row
+
+Use 5 cards maximum.
+
+```text
+ACTIVE PROJECTS
+47
+
+CRITICAL
+4
+
+HIGH RISK
+11
+
+LAND UNDER ACQUISITION
+2,481 Ha
+
+PROJECTS REQUIRING ACTION
+7
+```
+
+Don't use metrics that cannot eventually be reliably obtained.
+
+---
+
+# 13. Primary dashboard component
+
+## "Attention Required"
+
+This should occupy significant screen space.
+
+```text
+ATTENTION REQUIRED                         View all →
+
+7 projects require follow-up
+
+┌────────────────────────────────────────────────────────────┐
+│ 🔴 Patna–Gaya–Dobhi NH-83                                │
+│                                                            │
+│ 287 days overdue                                           │
+│ Primary concern: Litigation                                │
+│ 14 active cases · 1 stay order                             │
+│                                                            │
+│ [View project]                           [Review issue]     │
+└────────────────────────────────────────────────────────────┘
+```
+
+Maximum 3–5 items initially.
+
+---
+
+# 14. Risk distribution
+
+```text
+PROJECT RISK
+
+Critical      4
+High         11
+Medium       17
+Low          15
+```
+
+Interactive.
+
+Clicking High:
+
+> `/projects?risk=high`
+
+---
+
+# 15. Bottleneck analysis
+
+Title:
+
+> **Primary Bottlenecks Across Projects**
+
+Possible categories based on your actual data:
+
+```text
+Litigation
+Compensation / Valuation
+Statutory Clearance
+Land Acquisition Progress
+Utility Conflicts
+Environmental / Forest
+Administrative Processing
+```
+
+Important:
+
+**Don't hardcode these as if every project has these categories.**
+
+They should be generated from available fields.
+
+---
+
+# 16. Risk trend
+
+Display:
+
+> **Project Risk Trend**
+
+Time:
+
+```text
+7 days
+30 days
+90 days
+1 year
+```
+
+Show:
+
+```text
+Critical
+High
+Medium
+Low
+```
+
+This requires temporal snapshots.
+
+Your current snapshot approach is therefore directly useful for the UX.
+
+---
+
+# 17. Geographic risk map
+
+Map:
+
+```text
+India
+ ↓
+State
+ ↓
+District
+```
+
+Markers or district shading.
+
+Click:
+
+```text
+Patna
+
+18 active projects
+7 high/critical
+Average predicted delay: XXX days
+```
+
+Important:
+
+Don't use geographic visualization merely because maps look impressive.
+
+The map must answer:
+
+> **Where is acquisition risk concentrated?**
+
+---
+
+# 18. PROJECTS PAGE
+
+The project registry is essentially the officer's operational workspace.
+
+Header:
+
+```text
+Projects
+
+47 active projects
+
+[Search projects...] [Filters] [Columns]
+```
+
+---
+
+# 19. Project table
+
+Recommended columns:
+
+| Project | Agency | Sector | Location | Stage | Land | Risk | Target |
+| ------- | ------ | ------ | -------- | ----- | ---- | ---- | ------ |
+
+Example:
+
+```text
+NH-83 Patna–Gaya
+MoRTH
+Highway
+Patna
+3G
+64%
+🔴 Critical
+12 Mar 2025
+```
+
+---
+
+# 20. Table behavior
+
+Use TanStack Table.
+
+Must support:
+
+### Sorting
+
+* risk
+* target date
+* delay
+* land required
+* land acquired
+* days in current stage
+
+### Filtering
+
+```text
+State
+District
+Agency
+Sector
+Risk
+Acquisition Stage
+Clearance Status
+Litigation
+Target status
+```
+
+### Search
+
+Search:
+
+```text
+Project name
+Project ID
+District
+Agency
+```
+
+### Column visibility
+
+Officer can select:
+
+```text
+☑ Risk
+☑ Delay
+☑ Land
+☑ Stage
+☐ Sanctioned Cost
+☐ Project Length
+```
+
+This keeps the interface clean.
+
+---
+
+# 21. Project row should be clickable
+
+Clicking the project opens:
+
+```text
+/project/{project_id}
+```
+
+Do not use a modal for the entire project.
+
+The project deserves its own page.
+
+---
+
+# 22. PROJECT INTELLIGENCE PAGE
+
+This is the most important page in the system.
+
+Header:
+
+```text
+← Projects
+
+4-Laning of Patna–Gaya–Dobhi Section
+
+MoRTH · Highway
+
+Patna · Bihta · Bihar
+
+🔴 HIGH DELAY RISK
+```
+
+Then:
+
+```text
+Target date: 12 Mar 2025
+Current status: 3G
+Delay status: 169 days overdue
+```
+
+---
+
+# 23. Project summary cards
+
+```text
+LAND REQUIRED
+790.3 Ha
+
+LAND ACQUIRED
+512 Ha
+
+CURRENT STAGE
+3G
+
+RISK
+HIGH
+
+TARGET
+12 Mar 2025
+```
+
+These values should come from actual backend fields.
+
+---
+
+# 24. Acquisition lifecycle component
+
+This should be the visual centerpiece.
+
+```text
+LAND ACQUISITION LIFECYCLE
+
+✓ 3A
+01 Jun 2022
+
+        │
+
+✓ 3D
+20 Oct 2023
+        │
+        │ 506 days
+        ↓
+
+● 3G
+15 Dec 2024
+        │
+        ↓
+
+○ Compensation
+Pending
+        │
+        ↓
+
+○ Possession
+Pending
+```
+
+The exact stages must eventually match the actual statutory workflow/data source.
+
+**Don't invent lifecycle states merely for UX.**
+
+---
+
+# 25. Stage detail
+
+Clicking 3D:
+
+```text
+SECTION 3D
+
+Declaration date
+20 Oct 2023
+
+Previous stage
+3A — 01 Jun 2022
+
+Time taken
+506 days
+
+Expected / benchmark duration
+XXX days
+
+Status
+Completed
+
+Assessment
+⚠ Longer than typical
+```
+
+This turns the timeline into an analytical tool.
+
+---
+
+# 26. Current stage card
+
+```text
+CURRENT ACQUISITION STAGE
+
+3G Award → Compensation
+
+Status
+In Progress
+
+Time since last milestone
+286 days
+
+Land remaining
+278.3 Ha
+
+⚠ Progress has slowed relative to historical project trajectory
+```
+
+Only display "slowed" when supported by temporal data.
+
+---
+
+# 27. LAND ACQUISITION section
+
+```text
+Land Acquisition
+
+Required              790.3 Ha
+Acquired               512 Ha
+Remaining              278.3 Ha
+
+64.8% acquired
+```
+
+Progress bar.
+
+Then:
+
+```text
+LAND CHARACTERISTICS
+
+Agricultural land       77%
+Forest land             78.5 Ha
+Built-up density        Medium
+Parcel fragmentation    High
+```
+
+Only show characteristics actually available.
+
+---
+
+# 28. LITIGATION section
+
+Based on:
+
+```text
+District_Land_Dispute_Pendency_Count
+Avg_Civil_Case_Disposal_Days
+Uncontested_Case_Ratio
+Project_Active_Litigation_Count
+Court_Stay_Order_Flag
+Section_3G_Arbitration_Petitions
+```
+
+UI:
+
+```text
+LITIGATION
+
+PROJECT LEVEL
+
+Active litigation       16
+Stay orders              1
+3G arbitration            7
+
+
+DISTRICT CONTEXT
+
+Pending land disputes  12,618
+Avg disposal time      3,226 days
+Uncontested cases        64.6%
+```
+
+Then:
+
+```text
+LITIGATION EXPOSURE
+
+🔴 High
+```
+
+---
+
+# 29. Why show district context?
+
+This is a very important product decision.
+
+The officer shouldn't only know:
+
+> "This project has 16 cases."
+
+They should know:
+
+> "This project has 16 cases in a district where land disputes are already highly prevalent."
+
+That provides context.
+
+Your dataset's district-level features are therefore not just ML variables.
+
+They have UX value.
+
+---
+
+# 30. CLEARANCE section
+
+Based on:
+
+```text
+Forest_Land_Required_Ha
+Stage_1_Clearance_Status
+Stage_1_Processing_Days
+Stage_2_Clearance_Status
+Eco_Sensitive_Zone_Overlap_Flag
+```
+
+UI:
+
+```text
+STATUTORY / ENVIRONMENTAL CLEARANCES
+
+Forest land required
+145.8 Ha
+
+Stage 1
+✓ Approved
+210 days
+
+Stage 2
+✓ Approved
+
+Eco-sensitive zone
+No overlap
+
+Clearance exposure
+LOW
+```
+
+---
+
+# 31. Compensation / valuation
+
+When your verified dataset contains these fields, display:
+
+```text
+COMPENSATION & VALUATION
+
+Agricultural circle rate
+₹X / m²
+
+Non-agricultural circle rate
+₹X / m²
+
+Market valuation
+₹X / m²
+
+Valuation discrepancy
+X.XX×
+
+Compensation disputes
+XX
+
+Arbitration petitions
+XX
+```
+
+Don't expose a valuation metric unless you can explain its source.
+
+---
+
+# 32. GEOSPATIAL / PHYSICAL COMPLEXITY
+
+```text
+PHYSICAL LAND COMPLEXITY
+
+Agricultural land ratio       77%
+Built-up density              Medium
+Flood hazard                  High
+Water-body intersections       4
+Parcel fragmentation          High
+```
+
+Include:
+
+> **View on map**
+
+The map should highlight relevant geographic factors where actual geospatial geometry is available.
+
+---
+
+# 33. RISK ASSESSMENT
+
+Now we get to the ML component.
+
+Don't put it at the top.
+
+The officer first sees the **actual situation**.
+
+Then:
+
+```text
+DELAY RISK
+
+🔴 HIGH
+
+Likelihood of significant delay
+78%
+
+Estimated delay range
+180–240 days
+```
+
+When the model isn't available:
+
+```text
+DELAY RISK
+
+Demo / rule-based assessment
+
+HIGH
+```
+
+Never pretend the demo number came from a trained model.
+
+---
+
+# 34. Risk explanation
+
+Button:
+
+> **Why is this high risk?**
+
+Expands:
+
+```text
+KEY RISK DRIVERS
+
+Litigation                 HIGH
+Current-stage stagnation   HIGH
+Land remaining             HIGH
+Clearance exposure         MEDIUM
+Physical complexity        MEDIUM
+```
+
+Then each can be expanded.
+
+---
+
+# 35. Observed vs predicted
+
+This is an essential design principle.
+
+Every insight should fall into one of three categories:
+
+### Observed
+
+Directly from government/project data.
+
+```text
+3G date: 15 Dec 2024
+```
+
+### Derived
+
+Calculated from observed data.
+
+```text
+Days since 3G: 286
+```
+
+### Predicted
+
+Produced by ML/model.
+
+```text
+Delay risk: High
+```
+
+The UI should make this distinction clear.
+
+---
+
+# 36. Don't call everything "AI"
+
+Use:
+
+> **Risk assessment**
+
+> **Risk drivers**
+
+> **Early warning**
+
+> **Project intelligence**
+
+not:
+
+> AI Magic
+
+This makes the project look more serious.
+
+---
+
+# 37. Intervention Center
+
+This is where we close the loop.
+
+Navigation:
+
+> **Interventions**
+
+Table:
+
+| Project    | Issue        | Priority | Assigned To | Due    | Status      |
+| ---------- | ------------ | -------- | ----------- | ------ | ----------- |
+| NH-83      | Litigation   | Critical | Legal       | 02 Sep | Open        |
+| Delhi–Agra | Compensation | High     | CALA        | 05 Sep | In progress |
+
+---
+
+# 38. Intervention creation
+
+Click:
+
+> **Create follow-up**
+
+Form:
+
+```text
+PROJECT
+[ NH-83 Patna–Gaya ▼ ]
+
+ISSUE CATEGORY
+[ Litigation ▼ ]
+
+ISSUE
+[ Court stay affecting acquisition ]
+
+PRIORITY
+[ Critical ]
+
+RESPONSIBLE FUNCTION
+[ Legal / CALA ]
+
+DUE DATE
+[ 02 Sep 2026 ]
+
+NOTES
+[________________________]
+
+[Create intervention]
+```
+
+The form should use real operational terminology.
+
+---
+
+# 39. Intervention statuses
+
+Keep them simple:
+
+```text
+Open
+In Progress
+Awaiting External Response
+Resolved
+Closed
+```
+
+Don't create 15 statuses.
+
+---
+
+# 40. Risk Monitor
+
+This page is about **change over time**.
+
+The question:
+
+> **Which projects are deteriorating?**
+
+Table:
+
+```text
+PROJECT                  PREVIOUS      CURRENT
+
+NH-83                    🟠 High       🔴 Critical ↑
+
+Delhi–Agra               🟢 Low        🟠 Medium ↑
+
+Pune Railway             🔴 High       🔴 High →
+
+Nagpur Transmission      🟠 Medium     🟢 Low ↓
+```
+
+---
+
+# 41. Project risk timeline
+
+Inside project:
+
+```text
+RISK HISTORY
+
+Jan       Apr       Jul       Aug
+
+🟢        🟢        🟠        🔴
+Low       Low       Medium    High
+```
+
+Click a point:
+
+```text
+Snapshot — July 2026
+
+Land acquired: 58%
+Active litigation: 9
+Clearance status: Pending
+Risk: Medium
+```
+
+This is exactly where your temporal snapshot architecture pays off.
+
+---
+
+# 42. District Intelligence
+
+State officer enters this page.
+
+```text
+DISTRICT INTELLIGENCE
+
+Patna
+18 projects
+7 High/Critical
+Average delay: XXX
+
+Agra
+23 projects
+6 High/Critical
+Average delay: XXX
+
+Pune
+31 projects
+4 High/Critical
+Average delay: XXX
+```
+
+---
+
+# 43. District drill-down
+
+Click Patna:
+
+```text
+PATNA DISTRICT
+
+Projects                    18
+Critical                     2
+High                         5
+
+Total land                  XXX Ha
+Pending acquisition         XXX Ha
+
+Litigation exposure         HIGH
+Clearance exposure          MEDIUM
+```
+
+Then:
+
+> **Top bottlenecks**
+
+```text
+Litigation             43%
+Compensation           28%
+Clearances             17%
+Other                  12%
+```
+
+---
+
+# 44. Portfolio-level view
+
+For senior officers:
+
+```text
+STATE / REGION
+
+Total projects
+147
+
+High / Critical
+41
+
+Land under acquisition
+XX,XXX Ha
+
+Projects deteriorating
+8
+
+Interventions overdue
+5
+```
+
+---
+
+# 45. Reports
+
+Reports should be generated from actual system data.
+
+```text
+Reports
+
+Project Risk Report
+District Risk Report
+Critical Project Report
+Intervention Status Report
+Monthly Acquisition Summary
+```
+
+Exports:
+
+```text
+PDF
+Excel
+CSV
+```
+
+---
+
+# 46. Project search
+
+Global search should support:
+
+```text
+Project ID
+Project name
+District
+Executing agency
+```
+
+Example:
+
+```text
+Search: "NH-83"
+
+Results:
+
+4-Laning of Patna–Gaya–Dobhi
+Project ID: PRJ-...
+MoRTH
+Patna
+🔴 High
+```
+
+---
+
+# 47. Notifications
+
+Notifications should be operational, not generic.
+
+Examples:
+
+```text
+🔴 Risk increased
+
+NH-83 changed from Medium → High.
+
+
+⚠ Stage stagnation
+
+Project XYZ has exceeded expected
+duration at the current stage.
+
+
+📋 Intervention overdue
+
+Compensation follow-up for Project XYZ
+is overdue by 5 days.
+```
+
+---
+
+# 48. Data freshness
+
+Every project page should show:
+
+```text
+Data last updated:
+28 Aug 2026
+
+Source records:
+3A · BhoomiRashi
+Litigation · NJDG
+Clearance · PARIVESH
+```
+
+This becomes very important when you eventually integrate real government sources.
+
+---
+
+# 49. Data provenance
+
+This is one feature I strongly recommend.
+
+Every important dataset-derived value should have:
+
+> **View source**
+
+For example:
+
+```text
+3G date
+21 Aug 2025
+
+Source:
+BhoomiRashi
+
+[View source]
+```
+
+This is particularly valuable for SIH because judges can ask:
+
+> "Where did this information come from?"
+
+You should be able to answer immediately.
+
+---
+
+# 50. Data Quality indicator
+
+Since government datasets may have missing values:
+
+```text
+DATA QUALITY
+
+██████████████████░░
+91% complete
+
+3 fields unavailable
+2 source records outdated
+```
+
+Project:
+
+```text
+Data confidence
+High
+```
+
+Do not silently fill missing government information.
+
+---
+
+# 51. Missing-data UX
+
+Suppose actual completion date doesn't exist.
+
+Don't display:
+
+```text
+Completion: —
+```
+
+Instead:
+
+> **Not available**
+
+and optionally:
+
+> Source record does not currently contain a completion date.
+
+This is much more honest.
+
+---
+
+# 52. Your current dataset maps to the UX like this
+
+| Dataset domain    | UI                       |
+| ----------------- | ------------------------ |
+| Project ID        | Project identity         |
+| Project Name      | Project identity         |
+| Executing Agency  | Project identity/filter  |
+| Sector            | Project identity/filter  |
+| Cost              | Project overview         |
+| Length            | Project overview         |
+| Sanction Date     | Timeline                 |
+| Target Date       | Timeline / risk          |
+| State             | Location                 |
+| District          | Location                 |
+| Subdistrict       | Location                 |
+| LGD codes         | Backend/location mapping |
+| 3A                | Acquisition timeline     |
+| 3D                | Acquisition timeline     |
+| 3G                | Acquisition timeline     |
+| Land required     | Acquisition              |
+| CALA              | Responsible authority    |
+| Forest land       | Clearance                |
+| Stage 1           | Clearance                |
+| Stage 2           | Clearance                |
+| ESZ overlap       | Environmental risk       |
+| Utility conflicts | Bottleneck               |
+| Litigation        | Litigation               |
+| Court stay        | Litigation               |
+| Arbitration       | Litigation               |
+| Circle rates      | Compensation             |
+| Valuation         | Compensation             |
+| Snapshot date     | Risk history             |
+| Delay             | Outcome/monitoring       |
+| Risk target       | ML                       |
+
+This is the principle we should maintain.
+
+---
+
+# 53. IMPORTANT: Don't put target leakage fields into the live prediction interface
+
+This matters for your ML architecture.
+
+For example:
+
+```text
+Actual_Completion_Date
+Delay_Days
+Is_Delayed_90D
+Is_Delayed_180D
+Is_Delayed_365D
+```
+
+are **outcomes**.
+
+They should not be used as inputs to predict future delay.
+
+In the UI they belong under:
+
+> **Historical / Outcome**
+
+or:
+
+> **Performance**
+
+not:
+
+> Current risk factors.
+
+---
+
+# 54. Snapshot-aware UX
+
+The system should operate conceptually as:
+
+```text
+                    PROJECT
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+          CURRENT            HISTORY
+              │                 │
+          Snapshot          Snapshots
+              │                 │
+              ↓                 ↓
+         Risk now          Risk trajectory
+```
+
+This is crucial.
+
+The officer should be able to select:
+
+> **As of date**
+
+and the system reconstructs the project state from information available at that point.
+
+That makes the predictive system much more defensible.
+
+---
+
+# 55. "As of" selector
+
+Top-right:
+
+```text
+As of:
+
+● Current
+○ 30 days ago
+○ 90 days ago
+○ Custom date
+```
+
+For the demo, you can support this using your snapshot dataset.
+
+---
+
+# 56. What the backend should expose
+
+FastAPI should not send random CSV columns directly to React.
+
+Create a **domain-oriented API**.
+
+For example:
+
+```text
+GET /api/dashboard
+GET /api/projects
+GET /api/projects/{project_id}
+GET /api/projects/{project_id}/timeline
+GET /api/projects/{project_id}/risk
+GET /api/projects/{project_id}/history
+GET /api/projects/{project_id}/litigation
+GET /api/projects/{project_id}/clearances
+GET /api/districts
+GET /api/districts/{district_id}
+GET /api/interventions
+POST /api/interventions
+PATCH /api/interventions/{id}
+GET /api/reports
+```
+
+---
+
+# 57. Example project API response
+
+The backend should eventually return something conceptually like:
+
+```json
+{
+  "project": {
+    "id": "PRJ-001",
+    "name": "...",
+    "agency": "MoRTH",
+    "sector": "Highway",
+    "location": {
+      "state": "...",
+      "district": "...",
+      "subdistrict": "..."
+    }
+  },
+
+  "acquisition": {
+    "current_stage": "3G",
+    "land_required_ha": 790.3,
+    "land_acquired_ha": 512.0,
+    "land_remaining_ha": 278.3,
+    "milestones": []
+  },
+
+  "litigation": {},
+
+  "clearances": {},
+
+  "physical_complexity": {},
+
+  "risk": {
+    "level": "high",
+    "score": 0.78,
+    "estimated_delay_days": {
+      "min": 180,
+      "max": 240
+    }
+  }
+}
+```
+
+The frontend should **not care whether that information came from CSV, PostgreSQL, government APIs, or an ML model.**
+
+That is how we make the frontend future-proof.
+
+---
+
+# 58. Frontend data architecture
+
+Recommended:
+
+```text
+src/
+
+components/
+    layout/
+    ui/
+    charts/
+    maps/
+    tables/
+    status/
+
+features/
+    dashboard/
+    projects/
+    project-detail/
+    risk-monitor/
+    districts/
+    interventions/
+    reports/
+
+api/
+    dashboard.ts
+    projects.ts
+    risk.ts
+    districts.ts
+    interventions.ts
+
+types/
+    project.ts
+    acquisition.ts
+    litigation.ts
+    clearance.ts
+    risk.ts
+    intervention.ts
+
+pages/
+    Dashboard.tsx
+    Projects.tsx
+    ProjectDetail.tsx
+    RiskMonitor.tsx
+    Districts.tsx
+    Interventions.tsx
+    Reports.tsx
+```
+
+Don't put everything inside `App.jsx`.
+
+---
+
+# 59. Component design system
+
+Build reusable components:
+
+```text
+StatusBadge
+RiskBadge
+MetricCard
+ProgressBar
+Timeline
+SectionCard
+DataTable
+FilterBar
+SearchInput
+EmptyState
+LoadingState
+ErrorState
+SourceBadge
+ConfidenceBadge
+RiskDriver
+InterventionCard
+MapView
+```
+
+This will make the UI consistent.
+
+---
+
+# 60. Every page needs these states
+
+AI coding agents frequently forget this.
+
+Every data-driven component must support:
+
+### Loading
+
+```text
+Skeleton
+```
+
+### Empty
+
+```text
+No projects match your filters.
+```
+
+### Error
+
+```text
+Unable to load project information.
+
+Retry
+```
+
+### Partial data
+
+```text
+Some source information is unavailable.
+```
+
+### Success
+
+Normal content.
+
+---
+
+# 61. Never use fake values when data is missing
+
+This is a strict requirement.
+
+Bad:
+
+```text
+Average delay: 143 days
+```
+
+when backend doesn't have it.
+
+Good:
+
+```text
+Average delay
+Not available
+```
+
+Your demo data may be synthetic, but it must never masquerade as a real government observation.
+
+---
+
+# 62. Demo mode
+
+Until the real dataset arrives, add:
+
+```text
+DEMONSTRATION DATA
+```
+
+in a subtle but visible header badge.
+
+Example:
+
+> **Demonstration environment · Data is illustrative**
+
+When real data arrives, the badge disappears through configuration.
+
+No UI redesign required.
+
+---
+
+# 63. Model integration later
+
+Initially:
+
+```text
+Dataset
+ ↓
+Rule-based risk
+ ↓
+UI
+```
+
+Later:
+
+```text
+Dataset
+ ↓
+Feature engineering
+ ↓
+ML model
+ ↓
+Risk API
+ ↓
+UI
+```
+
+The UI doesn't change.
+
+That's exactly what we want.
+
+---
+
+# 64. What the model eventually needs to output
+
+Don't force the UI to consume only:
+
+```json
+{
+  "risk": 0.81
+}
+```
+
+Eventually the API should ideally return:
+
+```json
+{
+  "risk_level": "high",
+  "risk_probability": 0.81,
+  "prediction_horizon_days": 180,
+  "estimated_delay_days": 213,
+  "risk_drivers": [
+    {
+      "factor": "litigation",
+      "severity": "high"
+    },
+    {
+      "factor": "stage_stagnation",
+      "severity": "high"
+    }
+  ]
+}
+```
+
+Then the UI can explain the result.
+
+---
+
+# 65. What the AI coding agent should NOT do
+
+Give this explicitly to the agent.
+
+### Do NOT:
+
+* invent government data
+* invent government terminology
+* invent additional lifecycle stages
+* invent statistics
+* display synthetic data as real
+* hardcode risk numbers
+* hardcode project names
+* hardcode district statistics
+* create arbitrary ML scores
+* expose raw database structure to users
+* overload the dashboard with charts
+* create an "AI chatbot" just for appearance
+* create unnecessary animations
+* make every card clickable
+* use color without textual meaning
+
+---
+
+# 66. What the AI coding agent SHOULD do
+
+### Must:
+
+* use real dataset field names in backend mappings
+* use domain terminology
+* keep raw fields separate from derived fields
+* clearly distinguish observed/derived/predicted information
+* make every dashboard metric traceable to a backend field/derivation
+* support missing values
+* support loading/error states
+* make tables sortable/filterable
+* make project pages deep-linkable
+* maintain consistent status terminology
+* make risk explanations understandable
+* keep components reusable
+* ensure responsive layout
+* ensure accessibility
+* keep demo data replaceable by real data
+
+---
+
+# 67. The project page's final information hierarchy
+
+If you remember only one UI hierarchy, make it this:
+
+```text
+PROJECT
+  ↓
+CURRENT ACQUISITION STATE
+  ↓
+TIMELINE
+  ↓
+WHAT IS BLOCKING IT?
+  ↓
+LITIGATION / COMPENSATION / CLEARANCE /
+LAND / GEOGRAPHY
+  ↓
+DELAY RISK
+  ↓
+WHY?
+  ↓
+WHAT NEEDS ATTENTION?
+  ↓
+INTERVENTION
+  ↓
+HISTORY
+```
+
+Not:
+
+```text
+Project
+↓
+10 random charts
+↓
+AI score
+↓
+table
+```
+
+---
+
+# 68. The complete officer journey
+
+This is the UX we should test.
+
+### Step 1
+
+Officer opens system.
+
+Sees:
+
+> **7 projects require attention**
+
+### Step 2
+
+Clicks.
+
+Sees:
+
+> **NH-83 — High Risk**
+
+### Step 3
+
+Opens project.
+
+Sees:
+
+> Current stage: 3G → Compensation
+
+### Step 4
+
+Sees:
+
+> 278 Ha remaining.
+
+### Step 5
+
+Sees:
+
+> Litigation exposure: High.
+
+### Step 6
+
+Opens explanation.
+
+Sees:
+
+> 16 active cases
+> 1 stay order
+> 7 arbitration petitions
+
+### Step 7
+
+System identifies:
+
+> **Litigation is the primary risk driver.**
+
+### Step 8
+
+Officer creates follow-up:
+
+> Review litigation affecting acquisition.
+
+### Step 9
+
+Intervention appears in:
+
+> **Intervention Center**
+
+### Step 10
+
+Future snapshot arrives.
+
+Risk changes:
+
+```text
+High → Medium
+```
+
+Officer sees:
+
+> **Risk improving after intervention.**
+
+That is a complete product loop.
+
+---
+
+# 69. The actual SIH value proposition
+
+Don't pitch:
+
+> "We built a predictive analytics dashboard."
+
+Pitch the system as:
+
+> **"Our platform converts fragmented land-acquisition information into an early-warning system that helps officers identify projects at risk of delay, understand the underlying bottleneck, prioritize interventions, and continuously monitor whether the situation is improving."**
+
+The core loop:
+
+# **Detect → Explain → Prioritize → Intervene → Monitor**
+
+That's what the entire UI should communicate.
+
+---
+
+# 70. MVP priority
+
+Don't attempt everything simultaneously.
+
+### P0 — Must work
+
+```text
+✓ Dashboard
+✓ Project registry
+✓ Project detail
+✓ Acquisition timeline
+✓ Risk status
+✓ Risk explanation
+✓ Litigation
+✓ Clearance
+✓ Land information
+✓ Filters/search
+✓ Temporal snapshot
+```
+
+### P1 — Strong differentiators
+
+```text
+✓ Intervention center
+✓ District intelligence
+✓ Risk trajectory
+✓ Bottleneck analytics
+✓ Data provenance
+✓ Data quality
+```
+
+### P2 — Later
+
+```text
+○ ML prediction
+○ SHAP/explainability
+○ Scenario simulation
+○ Automated reports
+○ Notifications
+○ Advanced geospatial analysis
+```
+
+---
+
+# 71. The single most important thing for your current situation
+
+You **do not need to wait for the real dataset to start**.
+
+But you should freeze the **data contract**, not the data.
+
+Think:
+
+```text
+                 DATA SOURCE
+                     ↓
+             ┌───────────────┐
+             │ DOMAIN MODEL  │ ← THIS SHOULD BE STABLE
+             └───────────────┘
+                     ↓
+                    API
+                     ↓
+                    UI
+```
+
+Your current CSV is merely:
+
+```text
+                 DEMO SOURCE
+                     ↓
+             DOMAIN MODEL
+                     ↓
+                    API
+                     ↓
+                    UI
+```
+
+When government data arrives:
+
+```text
+             GOVERNMENT SOURCE
+                     ↓
+             DOMAIN MODEL
+                     ↓
+                    API
+                     ↓
+              SAME EXACT UI
+```
+
+**That's the architecture you want.**
+
+---
+
+# 72. Final definition of "done" for the UX
+
+Before calling the UI complete, an officer should be able to do all of these **without technical knowledge**:
+
+* Find a project.
+* Filter projects by district/agency/risk/stage.
+* Understand the current acquisition stage.
+* See 3A/3D/3G progression.
+* See how much land is required/acquired/remaining.
+* Identify the project's major problem areas.
+* Understand litigation exposure.
+* Understand clearance status.
+* Understand physical/geospatial complexity.
+* See target date and delay status.
+* See whether risk is increasing/decreasing.
+* Understand **why** the system considers a project risky.
+* Identify which projects deserve attention first.
+* Create and track a follow-up/intervention.
+* See intervention history.
+* See historical snapshots.
+* Know where important data came from.
+* Know when the data was last updated.
+* Distinguish actual observations from predictions.
+* Understand when information is unavailable.
+
+If they can do that, **we've actually solved the UX side of SIH26017**.
+
+And the important architectural decision is that **none of those workflows should depend on the synthetic dataset's exact values or project names**. They should depend on the domain concepts and fields we've established. When the verified government dataset eventually replaces the demo data, the React application should require little more than changing the ingestion/mapping layer and API implementation—not redesigning the product.
+-------------------------------------------------------------------------------------------------------------------------------
+other
+
+
+Yes — **this is the correction we need to make**.
+
+We shouldn't design a generic "AI dashboard" and then try to fit the dataset into it. The **real-world data model and the officer's actual decision workflow should determine the UX**.
+
+And before designing screens, we need to be very precise about **what SIH26017 is actually asking us to build**.
+
+## 1. What are we really building?
+
+For **SIH26017 — Predictive Analytics for Land Acquisition Delays**, the product should not primarily be:
+
+> "A dashboard showing land acquisition statistics."
+
+And it shouldn't be:
+
+> "An ML model predicting whether a project will be delayed."
+
+Those are components.
+
+The actual product is:
+
+> **A decision-support system that identifies land-acquisition projects likely to miss their target timelines, identifies the factors causing the risk, and helps government officers prioritize and intervene before delays become critical.**
+
+So the fundamental loop is:
+
+```text
+REAL PROJECT DATA
+       ↓
+CURRENT PROJECT STATE
+       ↓
+DELAY RISK ASSESSMENT
+       ↓
+WHY IS IT AT RISK?
+       ↓
+WHICH PROJECT NEEDS ATTENTION FIRST?
+       ↓
+WHAT CAN THE OFFICER DO?
+       ↓
+INTERVENTION / MONITORING
+       ↓
+UPDATED PROJECT STATE
+```
+
+That distinction is extremely important.
+
+---
+
+# 2. The officer isn't really asking "What's the prediction?"
+
+Imagine a CALA / district-level officer handling 30–100 acquisition projects.
+
+Their actual questions are more like:
+
+### Question 1
+
+> **Which projects should I worry about right now?**
+
+### Question 2
+
+> **How serious is each project?**
+
+### Question 3
+
+> **Why is this project likely to get delayed?**
+
+### Question 4
+
+> **What stage of acquisition is causing the problem?**
+
+### Question 5
+
+> **Is the problem landowners, litigation, compensation, environmental clearance, utilities, etc.?**
+
+### Question 6
+
+> **Which projects need intervention first?**
+
+### Question 7
+
+> **What should I follow up on?**
+
+### Question 8
+
+> **Is the situation improving or getting worse?**
+
+Your application should answer these questions directly.
+
+---
+
+# 3. Now let's design the UX from your actual dataset
+
+Your dataset is actually giving us a very useful structure.
+
+We can divide your real-world variables into **seven domains**.
+
+```text
+                 PROJECT
+                    │
+ ┌──────────────────┼───────────────────┐
+ │                  │                   │
+Project         Acquisition          Location
+Profile         Progress
+ │                  │                   │
+ │                  │                   │
+ ├── Agency         ├── 3A              ├── State
+ ├── Sector         ├── 3D              ├── District
+ ├── Cost           ├── 3G              ├── Subdistrict
+ ├── Length         ├── Land            └── LGD codes
+ └── Dates          └── CALA
+
+                    │
+       ┌────────────┼─────────────┐
+       │            │             │
+ Litigation    Clearances    Physical/
+                              Land Complexity
+       │            │             │
+       ├── Cases    ├── Forest   ├── Forest land
+       ├── Stays    ├── Stage 1  ├── ESZ
+       ├── 3G       ├── Stage 2  ├── Utilities
+       │            └── Status    └── Geography
+       │
+       └── Arbitration
+
+                    │
+                    ↓
+             DELAY RISK
+                    │
+                    ↓
+            OFFICER ACTION
+```
+
+That gives us the structure of the product.
+
+---
+
+# 4. The Project Registry should use real dataset fields
+
+Instead of arbitrary fields like:
+
+> Project status / owner / priority
+
+we should use the actual project dimensions.
+
+The table should look approximately like:
+
+| Project          | Agency | Sector  | District | Acquisition Stage | Land Required | Land Progress | Risk        | Target      |
+| ---------------- | ------ | ------- | -------- | ----------------- | ------------: | ------------: | ----------- | ----------- |
+| NH-83 Patna–Gaya | MoRTH  | Highway | Patna    | 3G                |        790 Ha |         64.8% | 🔴 Critical | 12 Mar 2025 |
+| Delhi–Agra       | NHAI   | Highway | Agra     | 3D                |        680 Ha |         71.2% | 🟠 High     | 10 Jun 2023 |
+
+The exact columns depend on what we can reliably obtain from the eventual government sources.
+
+### Filters should come directly from the data:
+
+```text
+State
+District
+Executing Agency
+Sector
+Acquisition Stage
+Risk Level
+Clearance Status
+Litigation Status
+Target Date
+```
+
+Not arbitrary UI filters.
+
+---
+
+# 5. Project Detail should be built around the acquisition lifecycle
+
+This is probably the biggest UX decision.
+
+Your project page shouldn't start with 15 charts.
+
+It should start with:
+
+# Land Acquisition Status
+
+```text
+Project: NH-83 Patna–Gaya–Dobhi
+
+MoRTH | Highway
+Patna, Bihar
+
+🔴 HIGH DELAY RISK
+
+Target completion
+12 Mar 2025
+
+Current status
+3G Award
+
+Days remaining / overdue
++263 days
+```
+
+Then:
+
+## Acquisition lifecycle
+
+```text
+3A Notification
+      ✓
+      │
+      ↓
+3D Declaration
+      ✓
+      │
+      ↓
+3G Award
+      ✓
+      │
+      ↓
+Compensation
+      ⚠
+      │
+      ↓
+Possession
+      ○
+```
+
+This directly maps to your dataset:
+
+```text
+Date_3a
+Date_3D
+Date_3G
+...
+Actual_Completion_Date
+```
+
+---
+
+# 6. But there's a major issue with your current dataset
+
+You currently have:
+
+```text
+Date_3a
+Date_3D
+Date_3G
+Actual_Completion_Date
+```
+
+But your earlier dataset had:
+
+```text
+Date_3a
+Date_3A
+Date_3D
+Date_3G
+```
+
+There is inconsistency.
+
+You need to establish a **canonical acquisition lifecycle schema** before we finalize the UI.
+
+For example:
+
+```text
+3A
+ ↓
+3D
+ ↓
+3G
+ ↓
+Compensation
+ ↓
+Possession
+ ↓
+Completion
+```
+
+And each stage needs:
+
+```text
+status
+date
+duration
+```
+
+if those fields are genuinely available from the source.
+
+Otherwise the UI must not pretend that we know them.
+
+---
+
+# 7. The most important thing on the project page: "Current state"
+
+The officer needs to know:
+
+> **Where exactly is this project stuck?**
+
+So I'd have a card:
+
+### Current Acquisition Position
+
+```text
+CURRENT STAGE
+
+3G Award → Compensation
+
+████████████████░░░░░░░░
+
+64% land acquired
+
+Last milestone:
+3G Award — 15 Dec 2024
+
+Days since milestone:
+286 days
+
+⚠ Above expected duration
+```
+
+This is much more meaningful than an ML probability.
+
+---
+
+# 8. Then we explain the risk using actual variables
+
+Suppose the project is high risk.
+
+Don't say:
+
+> Feature importance: 0.23
+
+Instead:
+
+# Why is this project at risk?
+
+```text
+┌──────────────────────────────────────┐
+│ 🔴 LITIGATION                        │
+│                                      │
+│ 16 active project cases              │
+│ 1 stay order                         │
+│ 7 arbitration petitions             │
+│                                      │
+│ District pendency: 12,618 cases     │
+└──────────────────────────────────────┘
+
+┌──────────────────────────────────────┐
+│ 🟠 COMPENSATION                      │
+│                                      │
+│ Compensation disputes: 16            │
+│ Pending landowners: 87               │
+└──────────────────────────────────────┘
+
+┌──────────────────────────────────────┐
+│ 🟠 LAND ACQUISITION                  │
+│                                      │
+│ 64% acquired                         │
+│ 278 Ha remaining                     │
+└──────────────────────────────────────┘
+```
+
+These correspond to actual data fields.
+
+---
+
+# 9. Litigation should be its own domain
+
+Your dataset contains:
+
+```text
+District_Land_Dispute_Pendency_Count
+Avg_Civil_Case_Disposal_Days
+Uncontested_Case_Ratio
+Project_Active_Litigation_Count
+Court_Stay_Order_Flag
+Section_3G_Arbitration_Petitions
+```
+
+That is enough to create a meaningful **Litigation Intelligence** section.
+
+The UI:
+
+```text
+LITIGATION
+
+Project-level
+────────────────────────
+Active cases          16
+Stay orders            1
+3G arbitration         7
+
+
+District-level
+────────────────────────
+Pending disputes   12,618
+Avg disposal time  3,226 days
+Uncontested ratio    64.6%
+```
+
+And then:
+
+> **Project litigation exposure: HIGH**
+
+This is much better because we distinguish:
+
+**project-level problems**
+
+from
+
+**district-level structural conditions.**
+
+That distinction will matter enormously when we eventually train the model.
+
+---
+
+# 10. Clearances should use your real fields
+
+You currently have:
+
+```text
+Forest_Land_Required_Ha
+Stage_1_Clearance_Status
+Stage_1_Processing_Days
+Stage_2_Clearance_Status
+Eco_Sensitive_Zone_Overlap_Flag
+```
+
+Therefore:
+
+# Environmental & Statutory Clearances
+
+```text
+FOREST LAND
+
+145.8 Ha required
+
+Stage 1
+🟢 Approved
+210 days
+
+Stage 2
+🟢 Approved
+
+
+ECO-SENSITIVE ZONE
+
+Overlap
+No
+
+
+CLEARANCE RISK
+
+LOW
+```
+
+For another project:
+
+```text
+Stage 1
+🔴 Rejected
+410 days
+
+Stage 2
+⏸ Pending
+
+Eco-sensitive zone
+Yes
+
+CLEARANCE RISK
+CRITICAL
+```
+
+Notice that we're not inventing fields like:
+
+> "Environmental score = 73"
+
+We're representing what the dataset actually knows.
+
+---
+
+# 11. Land complexity
+
+Your earlier dataset also has fields like:
+
+```text
+Agricultural_Land_Ratio
+BuiltUp_Area_Density
+Flood_Hazard_Index
+Water_Body_Intersections
+Cadastral_Parcel_Fragmentation_Score
+```
+
+These should become:
+
+# Physical & Land Complexity
+
+```text
+Agricultural land       77%
+Built-up density        41%
+Flood hazard            HIGH
+Water intersections      4
+Parcel fragmentation    HIGH
+```
+
+Then:
+
+> **Physical acquisition complexity: HIGH**
+
+Again, the UI translates raw variables into something an officer can understand.
+
+---
+
+# 12. Your circle-rate / valuation features are especially interesting
+
+You previously had:
+
+```text
+Baseline_Circle_Rate_Agricultural
+Baseline_Circle_Rate_NonAgricultural
+Market_Valuation
+Valuation_Discrepancy_Ratio
+```
+
+This gives you:
+
+# Compensation & Valuation
+
+```text
+Circle rate — Agricultural
+₹3,345 / m²
+
+Circle rate — Non-agricultural
+₹23,947 / m²
+
+Estimated market valuation
+₹8,637 / m²
+
+Valuation discrepancy
+1.58×
+```
+
+Then:
+
+### ⚠ Compensation Risk: HIGH
+
+Why?
+
+> Large discrepancy between baseline valuation and estimated market valuation may increase the likelihood of compensation disputes.
+
+That is a **domain explanation**, not simply an ML explanation.
+
+---
+
+# 13. And this is where your product becomes genuinely useful
+
+The system should combine all those domains into:
+
+# Project Risk Assessment
+
+```text
+                 OVERALL RISK
+
+                     🔴
+                   HIGH
+
+              78% risk score
+
+
+   Litigation       ██████████ HIGH
+   Compensation     ████████   HIGH
+   Acquisition      ███████    HIGH
+   Clearance        ████       MEDIUM
+   Geography        ███        MEDIUM
+```
+
+The model eventually produces the score.
+
+But the **reasoning interface** comes from your domain features.
+
+---
+
+# 14. However, don't make "risk score" the final output
+
+This is crucial.
+
+The real output should be:
+
+> **Priority for intervention**
+
+Imagine two projects:
+
+### Project A
+
+```text
+Risk: 78%
+Delay: 180 days
+```
+
+### Project B
+
+```text
+Risk: 70%
+Delay: 160 days
+```
+
+A naive system says:
+
+> Work on A.
+
+But suppose:
+
+```text
+Project A
+Court stay
+14 parcels affected
+```
+
+and:
+
+```text
+Project B
+Minor administrative delay
+```
+
+Clearly A deserves attention.
+
+So we need:
+
+# Intervention Priority
+
+```text
+CRITICAL
+│
+├── Risk
+├── Delay magnitude
+├── Project importance
+├── Land affected
+├── Current bottleneck
+└── Deadline proximity
+```
+
+This is a much better decision-support concept.
+
+---
+
+# 15. The dashboard should therefore NOT say:
+
+> "12 projects have >80% probability."
+
+Instead:
+
+# Projects Requiring Attention
+
+```text
+12 projects require intervention
+
+┌────────────────────────────────────────────┐
+│ 🔴 NH-83 Patna–Gaya–Dobhi                 │
+│                                            │
+│ 287 days overdue                           │
+│ Primary issue: Litigation                  │
+│ 1 court stay | 14 active cases             │
+│                                            │
+│ [Investigate]                              │
+└────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────┐
+│ 🔴 Delhi–Agra Highway                     │
+│                                            │
+│ 193 days overdue                           │
+│ Primary issue: Compensation                │
+│ 87 compensation cases pending              │
+│                                            │
+│ [Investigate]                              │
+└────────────────────────────────────────────┘
+```
+
+---
+
+# 16. There should be a distinction between "Prediction" and "Observation"
+
+This will make your project much more credible.
+
+For example:
+
+### Observed
+
+> **Stage 1 clearance has been pending for 410 days.**
+
+That's a fact from the data.
+
+### Predicted
+
+> **High likelihood of additional delay.**
+
+That's your model's inference.
+
+### Explanation
+
+> **Clearance stagnation is a major contributing factor.**
+
+That's interpretation.
+
+The UI should visually distinguish these.
+
+```text
+OBSERVED
+410 days pending
+
+PREDICTED
+High delay risk
+
+RECOMMENDED
+Review clearance status
+```
+
+This prevents the AI from pretending that predictions are facts.
+
+---
+
+# 17. Temporal snapshots become VERY important
+
+This is actually one of the strongest parts of the work you were doing earlier.
+
+Instead of:
+
+```text
+Project
+→ Final outcome
+```
+
+you want:
+
+```text
+Project
+   │
+   ├── Snapshot: Jan 2024
+   ├── Snapshot: Apr 2024
+   ├── Snapshot: Jul 2024
+   └── Snapshot: Oct 2024
+```
+
+The officer can therefore see:
+
+# Risk trajectory
+
+```text
+Jan       Apr       Jul       Oct
+
+🟢        🟢        🟠        🔴
+Low       Low       Medium    High
+```
+
+Then:
+
+> **Risk increased from LOW → HIGH over the last 9 months.**
+
+That's much more useful than saying:
+
+> "This project is delayed."
+
+Because the purpose of predictive analytics is **early warning**.
+
+---
+
+# 18. This gives us the actual objective
+
+The system should ideally catch:
+
+```text
+TODAY
+
+Project is still technically "on track"
+
+        ↓
+
+Model sees:
+• increasing litigation
+• increasing processing time
+• stagnant acquisition
+• high valuation discrepancy
+
+        ↓
+
+⚠ EARLY WARNING
+
+        ↓
+
+Officer intervenes
+
+        ↓
+
+Delay prevented/reduced
+```
+
+**That is the actual value proposition of predictive analytics.**
+
+If you only predict a delay after the project is already 300 days late, you've built a reporting system, not an early-warning system.
+
+---
+
+# 19. So your final architecture should look like this
+
+```text
+                 GOVERNMENT DATA SOURCES
+                         │
+       ┌─────────────────┼──────────────────┐
+       ↓                 ↓                  ↓
+ BhoomiRashi          NJDG              PARIVESH
+       │                 │                  │
+       └─────────────────┼──────────────────┘
+                         ↓
+                DATA HARMONIZATION
+                         ↓
+                 PROJECT DATA MODEL
+                         ↓
+              TEMPORAL SNAPSHOT ENGINE
+                         ↓
+              ┌──────────┴──────────┐
+              ↓                     ↓
+        CURRENT STATE          HISTORICAL STATE
+              │                     │
+              └──────────┬──────────┘
+                         ↓
+                 RISK PREDICTION
+                         ↓
+                RISK EXPLANATION
+                         ↓
+             INTERVENTION PRIORITY
+                         ↓
+                  OFFICER UI
+                         ↓
+             ┌───────────┴───────────┐
+             ↓                       ↓
+        TAKE ACTION             MONITOR
+             ↓                       ↓
+             └───────────┬───────────┘
+                         ↓
+                  NEXT SNAPSHOT
+```
+
+That is a **real product architecture**, rather than an ML demo.
+
+---
+
+# 20. One thing I would change from our previous design
+
+I previously suggested things like:
+
+> "Recommended Actions: Resolve court stay."
+
+We need to be more careful.
+
+The system should **not pretend to know legal/administrative actions that aren't supported by the data or official workflow**.
+
+Instead, initially say:
+
+```text
+INTERVENTION INDICATOR
+
+Primary bottleneck:
+Court stay
+
+Affected area:
+14 active litigation cases
+
+Recommended follow-up:
+Review pending litigation / stay order
+
+Responsible function:
+Legal / CALA
+```
+
+Then, once we understand the actual government workflow, we can make recommendations more specific.
+
+That's much more defensible before judges.
+
+---
+
+# 21. What I think we should build for the SIH prototype
+
+I'd reduce the entire product to this:
+
+### **A. Command Center**
+
+Answers:
+
+> **What needs my attention?**
+
+### **B. Project Intelligence**
+
+Answers:
+
+> **What is happening with this project?**
+
+### **C. Acquisition Timeline**
+
+Answers:
+
+> **Where is the acquisition process getting stuck?**
+
+### **D. Risk Explanation**
+
+Answers:
+
+> **Why is it likely to be delayed?**
+
+### **E. Intervention Center**
+
+Answers:
+
+> **What should I investigate/follow up on first?**
+
+### **F. Historical Risk Timeline**
+
+Answers:
+
+> **Is the project getting better or worse?**
+
+### **G. District Intelligence**
+
+Answers:
+
+> **Are there systemic problems in this district?**
+
+And every single piece of information shown should trace back to a **real field or a defensible derived metric from real fields**.
+
+---
+
+## The most important design principle
+
+I would literally put this above our development plan:
+
+> ### **Don't build a dashboard around the dataset. Build a decision workflow around the government problem, and use the dataset to support each decision.**
+
+The dataset tells us **what the system can know**.
+
+The land-acquisition workflow tells us **what the officer needs to know**.
+
+The ML model eventually tells us **what is likely to happen**.
+
+The UX connects all three:
+
+**What is happening → What will happen → Why → What needs attention → What should be followed up.**
+
+That is the product we should build.
+
+And before we start coding the frontend, I would actually recommend that we next create a **formal "SIH26017 Product Specification"** mapping **every real dataset column → what it means → whether it is observed/derived/predicted → where it appears in the UI → what officer decision it supports**. That will prevent us from accidentally designing features that our eventual government dataset cannot support.
